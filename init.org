@@ -2,7 +2,7 @@
 #+author: Machiel Kroon
 #+startup: show2levels
 
-WIP setup for emacs
+setup for emacs. WIP
 
 * Basics
 ** Early Init
@@ -91,7 +91,7 @@ As long as it is this small, its faster in init.el
 ** Fonts
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (set-face-attribute 'default nil :family "Courier New" :height 140)
+  (set-face-attribute 'default nil :family "Monospace" :height 140)
   (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
 #+end_src
 
@@ -265,6 +265,54 @@ mistyping
   (global-set-key (kbd "C-;") #'avy-goto-char-timer)
   (setq avy-timeout-seconds 0.25)
 #+end_src
+** browser function
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (setq browse-url-browser-function 'browse-url-firefox)
+#+end_src
+** util functions
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+(defun xah-toggle-letter-case ()
+  "Toggle the letter case of current word or selection.
+Always cycle in this order: Init Caps, ALL CAPS, all lower.
+
+URL `http://xahlee.info/emacs/emacs/modernization_upcase-word.html'
+Version: 2020-06-26"
+  (interactive)
+  (let ( (deactivate-mark nil) $p1 $p2)
+    (if (region-active-p)
+        (setq $p1 (region-beginning) $p2 (region-end))
+      (save-excursion
+        (skip-chars-backward "[:alpha:]")
+        (setq $p1 (point))
+        (skip-chars-forward "[:alpha:]")
+        (setq $p2 (point))))
+    (when (not (eq last-command this-command))
+      (put this-command 'state 0))
+    (cond
+     ((equal 0 (get this-command 'state))
+      (upcase-initials-region $p1 $p2)
+      (put this-command 'state 1))
+     ((equal 1 (get this-command 'state))
+      (upcase-region $p1 $p2)
+      (put this-command 'state 2))
+     ((equal 2 (get this-command 'state))
+      (downcase-region $p1 $p2)
+      (put this-command 'state 0)))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (defun open-settings ()
+	(interactive)
+	(find-file-other-frame "~/emacs/init.org"))
+#+end_src
+
+** bindings
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (global-set-key (kbd "M-c") #'xah-toggle-letter-case) ; frees M-l and M-u 
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+  (global-set-key (kbd "C-M-,") 'open-settings)
+#+end_src
 
 ** provide
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
@@ -274,6 +322,8 @@ mistyping
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
   (require 'extra-ui)
 #+end_src
+
+
 
 * Org Mode
 
@@ -287,7 +337,11 @@ mistyping
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
   (setq org-src-tab-acts-natively t)
   (setq org-confirm-babel-evaluate nil)
-
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+	 (python . t)
+	 (R . t)))
 #+end_src
 
 ** org-bullets
