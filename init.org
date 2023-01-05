@@ -31,7 +31,13 @@ setup for emacs. WIP
 ** Starting the server
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
-  (if (functionp 'server-running-p)
+  (require 'server)
+  (unless (server-running-p)
+    (server-start))
+#+end_src
+
+#+begin_src emacs-lisp
+  (if (and (functionp 'server-running-p) (not (server-running-p)))
       nil (server-start))
 #+end_src
 
@@ -39,7 +45,7 @@ setup for emacs. WIP
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
   (add-to-list 'load-path "~/.emacs.d/lisp")
-  (setq load-path (append (delete (expand-file-name "~/.emacs.d/elpa/archives") (directory-files "~/.emacs.d/elpa" t directory-files-no-dot-files-regexp)) load-path))
+  (setq load-path (append (delete (expand-file-name "~/.emacs.d/elpa/archives") (delete (expand-file-name "~/.emacs.d/elpa/archives") (directory-files "~/.emacs.d/elpa" t directory-files-no-dot-files-regexp))) load-path))
 #+end_src
 
 ** Package
@@ -57,7 +63,8 @@ As long as it is this small, its faster in init.el
   (load custom-file)
 #+end_src
 
-* Provide package-setup
+
+*** Provide package-setup
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/package-setup.el
   (provide 'package-setup)
@@ -66,6 +73,7 @@ As long as it is this small, its faster in init.el
 #+begin_src emacs-lisp
   (require 'package-setup)
 #+end_src
+
 
 * Native UI
 ** Ugly Modes
@@ -86,6 +94,7 @@ As long as it is this small, its faster in init.el
   (setq visible-bell t)
   (setq apropos-do-all t)
   (setf yes-or-no-p 'y-or-n-p)
+  (setq fringe-mode '(4 . 8))
 #+end_src
 
 ** Fonts
@@ -252,6 +261,7 @@ see the manual : https://protesilaos.com/emacs/modus-themes
   (require 'ui-stuff)
 #+end_src
 
+
 * Extra UI
 ** avy
 
@@ -260,16 +270,26 @@ see the manual : https://protesilaos.com/emacs/modus-themes
   (global-set-key (kbd "C-;") #'avy-goto-char-2)
 #+end_src
 
-mistyping
+*** mistyping
+
 #+begin_src emacs-lisp 
   (global-set-key (kbd "C-;") #'avy-goto-char-timer)
   (setq avy-timeout-seconds 0.25)
 #+end_src
+
+** expand-region
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (require 'expand-region)
+  (global-set-key (kbd "C-=") 'er/expand-region)
+#+end_src
+
 ** browser function
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (setq browse-url-browser-function 'browse-url-firefox)
 #+end_src
+
 ** util functions
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
 (defun xah-toggle-letter-case ()
@@ -304,7 +324,7 @@ Version: 2020-06-26"
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (defun open-settings ()
 	(interactive)
-	(find-file-other-frame "~/emacs/init.org"))
+	(find-file-other-window "~/emacs/init.org"))
 #+end_src
 
 ** bindings
@@ -331,7 +351,6 @@ Version: 2020-06-26"
   (with-eval-after-load 'org
 #+end_src
 
-
 ** Settings
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
@@ -348,6 +367,7 @@ Version: 2020-06-26"
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
   (require 'org-bullets)
+  (setq org-bullets-bullet-list '("◉" "○"))
   (add-hook 'org-mode-hook #'org-bullets-mode)
 #+end_src
 
@@ -374,42 +394,48 @@ Version: 2020-06-26"
   (require 'org-setup)
 #+end_src
 
+
 * C/C++ Mode
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cedit.el
   (defun mlk-c-edit ()
-    "m.l. kroon's C/C++ setup for emacs"
-    (progn
-      (c-set-style "stroustrup")
-      (setq c-basic-offset 4)
-      (indent-tabs-mode -1)
-      (local-set-key (kbd "C-c C-c") 'compile)
-      (unless (or (file-exists-p "Makefile")
-                  (file-exists-p "icmconf"))
-        (setq-local compile-command
-                    concat (if (string-equal (file-name-extension buffer-file-name) (or "cc" "cpp"))
-                               "g++ -std=c++20 " "gcc -std=c18 ")
-                    "-O2 -Wall -march=native -pipe -pthread "
-                    (file-name-nondirectory buffer-file-name)
-                    " -o " (file-name-base buffer-file-name)))))
+      "m.l. kroon's C/C++ setup for emacs"
+      (progn
+        (c-set-style "stroustrup")
+        ;;(setq c-basic-offset 4)
+        (indent-tabs-mode -1)
+        (local-set-key (kbd "C-c C-c") 'compile)
+        (unless (or (file-exists-p "Makefile")
+                    (file-exists-p "icmconf"))
+          (setq-local compile-command
+                      (concat (if (string-equal (file-name-extension buffer-file-name) (or "cc" "cpp"))
+                                 "g++ -std=c++20 " "gcc -std=c18 ")
+                      "-O2 -Wall -march=native -pipe -pthread "
+                      (file-name-nondirectory buffer-file-name)
+                      " -o " (file-name-base buffer-file-name))))))
 
-  (add-hook 'c-mode-common-hook #'mlk-c-edit)
+    (add-hook 'c-mode-common-hook #'mlk-c-edit)
 
-  (add-to-list 'auto-mode-alist '("\\.ih\\'" . c++-mode))
-  (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+    (add-to-list 'auto-mode-alist '("\\.ih\\'" . c++-mode))
+    (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
-  (provide 'cedit)
+    (provide 'cedit)
 #+end_src
 
 #+begin_src :tangle ~/.emacs.d/init.el
   (require 'cedit)
 #+end_src
 
+
 * Common Lisp
+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cl-setup.el
+  (defun cl-setup ()
+    "require common lisp stuff"
+    (interactive)
   (setq inferior-lisp-program "sbcl")
   (require 'slime)
-  (slime-setup)
+  (slime-setup))
 
   (provide 'cl-setup)
 #+end_src
@@ -419,3 +445,66 @@ Version: 2020-06-26"
 #+end_src
 
 
+* Julia
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/julia-setup.el
+  (defun julia-setup ()
+    "load julia"
+    (interactive)
+  (progn
+    (require 'julia-vterm)
+    (require 'julia-mode)
+    (add-hook 'julia-mode-hook #'julia-vterm-mode)))
+
+  (provide 'julia-setup)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'julia-setup)
+#+end_src
+
+
+* R
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/R-setup.el
+  (defun R-setup ()
+    "load julia"
+    (interactive)
+  (progn
+    (require 'ess-r-mode)))
+
+  (provide 'R-setup)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'R-setup)
+#+end_src
+
+
+* Python
+
+** Settings
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+  (with-eval-after-load 'python
+    (setq python-indent-offset 4)
+    (setq python-indent-guess-indent-offset nil)
+#+end_src
+
+** Bindings
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+  (define-key python-mode-map (kbd "C-<return>") 'python-shell-send-statement)
+  (define-key inferior-python-mode-map (kbd "C-c C-z") 'previous-window-any-frame);wip
+#+end_src
+
+** provide
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+  )
+  (provide 'python-setup)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'python-setup)
+#+end_src
