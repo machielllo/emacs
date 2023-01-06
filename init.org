@@ -4,6 +4,23 @@
 
 setup for emacs. WIP
 
+#+begin_src emacs-lisp
+  (mkdir "~/.emacs.d/lisp")
+  (mkdir ~/.emacs.d/backups)
+  (shell-command "touch ~/.emacs.d/mlkustom.el")
+#+end_src
+
+#+begin_src emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+  (package-refresh-contents)
+  (package-install 'avy)
+  (package-install 'expand-region)
+  (package-install 'org-bullets)
+  (package-install 'vterm 'julia-mode 'julia-vterm)
+  (package-install 'ess)
+#+end_src
+
 * Basics
 ** Early Init
 
@@ -459,7 +476,7 @@ Version: 2020-06-26"
   (provide 'julia-setup)
 #+end_src
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+#+begin_src emacs-lisp
   (require 'julia-setup)
 #+end_src
 
@@ -476,7 +493,7 @@ Version: 2020-06-26"
   (provide 'R-setup)
 #+end_src
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+#+begin_src emacs-lisp
   (require 'R-setup)
 #+end_src
 
