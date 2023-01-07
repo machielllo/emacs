@@ -6,7 +6,7 @@ setup for emacs. WIP
 
 #+begin_src emacs-lisp
   (mkdir "~/.emacs.d/lisp")
-  (mkdir ~/.emacs.d/backups)
+  (mkdir "~/.emacs.d/backups")
   (shell-command "touch ~/.emacs.d/mlkustom.el")
 #+end_src
 
@@ -17,9 +17,12 @@ setup for emacs. WIP
   (package-install 'avy)
   (package-install 'expand-region)
   (package-install 'org-bullets)
-  (package-install 'vterm 'julia-mode 'julia-vterm)
-  (package-install 'ess)
+;;  (package-install 'vterm 'julia-mode 'julia-vterm)
+;;  (package-install 'ess)
 #+end_src
+
+#+RESULTS:
+: Package ‘org-bullets’ installed.
 
 * Basics
 ** Early Init
@@ -117,7 +120,7 @@ As long as it is this small, its faster in init.el
 ** Fonts
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (set-face-attribute 'default nil :family "Monospace" :height 140)
+;;  (set-face-attribute 'default nil :family "Monospace Regular" :height 140)
   (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
 #+end_src
 
