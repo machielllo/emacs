@@ -4,25 +4,24 @@
 
 setup for emacs. WIP
 
-#+begin_src emacs-lisp
+swith for terminal setup...
+
+#+begin_src emacs-lisp :results none
   (mkdir "~/.emacs.d/lisp")
   (mkdir "~/.emacs.d/backups")
   (shell-command "touch ~/.emacs.d/mlkustom.el")
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results none
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
   (package-refresh-contents)
   (package-install 'avy)
   (package-install 'expand-region)
-  (package-install 'org-bullets)
+;;  (package-install 'org-bullets)
 ;;  (package-install 'vterm 'julia-mode 'julia-vterm)
 ;;  (package-install 'ess)
 #+end_src
-
-#+RESULTS:
-: Package ‘org-bullets’ installed.
 
 * Basics
 ** Early Init
@@ -108,7 +107,7 @@ As long as it is this small, its faster in init.el
 ** Pretty Modes
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (fido-vertical-mode 1)
+  (fido-vertical-mode 1)                  ; problem with emacs-27
   (column-number-mode 1)
   (save-place-mode 1)
   (setq visible-bell t)
@@ -119,9 +118,11 @@ As long as it is this small, its faster in init.el
 
 ** Fonts
 
+This is hard to do implement
+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
 ;;  (set-face-attribute 'default nil :family "Monospace Regular" :height 140)
-  (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
+;;  (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
 #+end_src
 
 ** Startup screen? (OFF)
@@ -135,6 +136,8 @@ Possibly make personal startup screen
 ** Modus Themes
 
 see the manual : https://protesilaos.com/emacs/modus-themes
+
+emacs 28+
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
   (setq modus-themes-org-blocks 'gray-background)
@@ -287,7 +290,6 @@ see the manual : https://protesilaos.com/emacs/modus-themes
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (require 'avy)
-  (global-set-key (kbd "C-;") #'avy-goto-char-2)
 #+end_src
 
 *** mistyping
@@ -301,7 +303,6 @@ see the manual : https://protesilaos.com/emacs/modus-themes
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (require 'expand-region)
-  (global-set-key (kbd "C-=") 'er/expand-region)
 #+end_src
 
 ** browser function
@@ -352,6 +353,8 @@ Version: 2020-06-26"
   (global-set-key (kbd "M-c") #'xah-toggle-letter-case) ; frees M-l and M-u 
   (global-set-key (kbd "C-x C-b") 'ibuffer)
   (global-set-key (kbd "C-M-,") 'open-settings)
+  (global-set-key (kbd "M-'") #'avy-goto-char-2)
+  (global-set-key (kbd "M-l") 'er/expand-region)
 #+end_src
 
 ** provide
