@@ -25,9 +25,9 @@ swith for terminal setup...
 
 * Basics
 ** Early Init
-
+loading everything seems dumb, but this doesn't work either
 #+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
-  (setq package-enable-at-startup nil)
+;;  (setq package-enable-at-startup nil)
 #+end_src
 
 *** Garbage Collection
@@ -64,7 +64,7 @@ swith for terminal setup...
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
   (add-to-list 'load-path "~/.emacs.d/lisp")
-  (setq load-path (append (delete (expand-file-name "~/.emacs.d/elpa/archives") (delete (expand-file-name "~/.emacs.d/elpa/archives") (directory-files "~/.emacs.d/elpa" t directory-files-no-dot-files-regexp))) load-path))
+;;  (setq load-path (append (delete (expand-file-name "~/.emacs.d/elpa/archives") (delete (expand-file-name "~/.emacs.d/elpa/archives") (directory-files "~/.emacs.d/elpa" t directory-files-no-dot-files-regexp))) load-path))
 #+end_src
 
 ** Package
@@ -121,8 +121,8 @@ As long as it is this small, its faster in init.el
 This is hard to do implement
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-;;  (set-face-attribute 'default nil :family "Monospace Regular" :height 140)
-;;  (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
+  ;;  (set-face-attribute 'default nil :family "Monospace Regular" :height 140)
+  (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
 #+end_src
 
 ** Startup screen? (OFF)
@@ -308,7 +308,7 @@ emacs 28+
 ** browser function
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
-  (setq browse-url-browser-function 'browse-url-firefox)
+;;  (setq browse-url-browser-function 'browse-url-firefox)
 #+end_src
 
 ** util functions
@@ -482,7 +482,7 @@ Version: 2020-06-26"
   (provide 'julia-setup)
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tanlge ~/.emacs.d/init.el
   (require 'julia-setup)
 #+end_src
 
@@ -491,7 +491,7 @@ Version: 2020-06-26"
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/R-setup.el
   (defun R-setup ()
-    "load julia"
+    "load ess-r"
     (interactive)
   (progn
     (require 'ess-r-mode)))
@@ -499,7 +499,7 @@ Version: 2020-06-26"
   (provide 'R-setup)
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
   (require 'R-setup)
 #+end_src
 
