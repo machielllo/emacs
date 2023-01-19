@@ -1,0 +1,518 @@
+#+title: Emacs Init
+#+author: Machiel Kroon
+#+startup: show2levels
+
+switch for terminal setup
+
+* initialize
+#+begin_src emacs-lisp :results none
+  (mkdir "~/.emacs.d/lisp")
+  (mkdir "~/.emacs.d/backups")
+  (shell-command "touch ~/.emacs.d/mlkustom.el")
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+  (package-refresh-contents)
+  (package-install 'avy)
+  (package-install 'expand-region)
+  (package-install 'org-bullets)          ;does work in (some) terminals
+  (package-install 'solarized-theme)
+  (package-install 'vterm)
+  (package-install 'julia-mode)
+  (package-install 'julia-vterm)
+  (package-install 'ess)
+  (package-install 'slime)
+#+end_src
+
+* Basics
+** Early Init
+loading everything seems dumb, but this doesn't work either
+#+begin_src emacs-lisp
+  (setq package-enable-at-startup nil)
+;;  (setq load-path (append (delete (expand-file-name "~/.emacs.d/elpa/archives") (delete (expand-file-name "~/.emacs.d/elpa/archives") (directory-files "~/.emacs.d/elpa" t directory-files-no-dot-files-regexp))) load-path))
+#+end_src
+
+*** Garbage Collection
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
+  (setq gc-cons-threshold (* 128 1024 1024))
+  (add-hook 'emacs-startup-hook
+            (lambda () (setq gc-cons-threshold (* 20 1024 1024))))
+#+end_src
+
+*** Bench Marking (OFF)
+
+#+begin_src emacs-lisp
+  (defun startup-timer ()
+    "Measure startup time"
+    (message "Emacs loaded in %f sec with %d gcs" (float-time (time-subtract after-init-time before-init-time)) gcs-done))
+  (add-hook 'emacs-startup-hook #'startup-timer)
+#+end_src
+
+** Starting the server
+Not in terminal
+#+begin_src emacs-lisp 
+  (require 'server)
+  (unless (server-running-p)
+    (server-start))
+#+end_src
+
+#+begin_src emacs-lisp
+  (if (and (functionp 'server-running-p) (not (server-running-p)))
+      nil (server-start))
+#+end_src
+
+** Load Path
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (add-to-list 'load-path "~/.emacs.d/lisp")
+#+end_src
+
+** Package
+As long as it is this small, its faster in init.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+#+end_src
+
+** Custom File
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (setq custom-file "~/.emacs.d/mlkustom.el")
+  (load custom-file)
+#+end_src
+
+
+*** Provide package-setup
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/package-setup.el
+  (provide 'package-setup)
+#+end_src
+
+#+begin_src emacs-lisp
+  (require 'package-setup)
+#+end_src
+
+
+* Native UI
+** Ugly Modes
+#+begin_src emacs-lisp 
+  (setq inhibit-startup-screen t)
+  (setq-default indent-tabs-mode nil)
+  (setq fringe-mode '(4 . 8))
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
+  (setq inhibit-startup-screen t)
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
+** Pretty Modes
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
+  (fido-vertical-mode 1)                  ; problem with emacs-27
+  (column-number-mode 1)
+  (save-place-mode 1)
+  (setq visible-bell t)
+  (setq apropos-do-all t)
+  (setf yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Fonts
+
+This is hard to do implement
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil :family "Terminus (TTF)" :height 150)
+  (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
+  (set-face-attribute 'variable-pitch nil :family (face-attribute 'default :family))
+#+end_src
+
+** Startup screen?
+
+Possibly make personal startup screen
+#+begin_src emacs-lisp :results true
+  (print fancy-startup-text)
+  ;;  (fancy-startup-screen)
+#+end_src
+
+** Backups
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups/")))
+#+end_src
+
+** Provide ui-stuff
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
+  (provide 'ui-stuff)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'ui-stuff)
+#+end_src
+
+
+* Extra UI
+** avy
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (require 'avy)
+#+end_src
+*** mistyping
+#+begin_src emacs-lisp 
+  (global-set-key (kbd "C-;") #'avy-goto-char-timer)
+  (setq avy-timeout-seconds 0.25)
+#+end_src
+
+** expand-region
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (require 'expand-region)
+#+end_src
+
+** browser function
+#+begin_src emacs-lisp
+  (setq browse-url-browser-function ')
+#+end_src
+
+** Hippie expand
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
+  (setq hippie-expand-try-functions-list '(try-complete-file-name
+                                           try-expand-line
+                                           try-expand-dabbrev
+                                           try-expand-dabbrev-all-buffers
+                                           try-expand-dabbrev-from-kill))
+#+end_src
+
+** Theme
+
+#+begin_src emacs-lisp
+  (load-theme 'solarized-dark t t)
+#+end_src
+
+** Modus Themes
+
+see the manual : https://protesilaos.com/emacs/modus-themes
+
+emacs 28+
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (setq modus-themes-org-blocks 'gray-background)
+  (load-theme 'modus-vivendi)
+  (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
+#+end_src
+
+*** Example (OFF)
+
+#+begin_src emacs-lisp
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs nil
+        modus-themes-mixed-fonts nil
+        modus-themes-subtle-line-numbers nil
+        modus-themes-intense-mouseovers nil
+        modus-themes-deuteranopia t
+        modus-themes-tabs-accented t
+        modus-themes-variable-pitch-ui nil
+        modus-themes-inhibit-reload t ; only applies to `customize-set-variable' and related
+
+        modus-themes-fringes nil ; {nil,'subtle,'intense}
+
+        ;; Options for `modus-themes-lang-checkers' are either nil (the
+        ;; default), or a list of properties that may include any of those
+        ;; symbols: `straight-underline', `text-also', `background',
+        ;; `intense' OR `faint'.
+        modus-themes-lang-checkers nil
+
+        ;; Options for `modus-themes-mode-line' are either nil, or a list
+        ;; that can combine any of `3d' OR `moody', `borderless',
+        ;; `accented', a natural number for extra padding (or a cons cell
+        ;; of padding and NATNUM), and a floating point for the height of
+        ;; the text relative to the base font size (or a cons cell of
+        ;; height and FLOAT)
+        modus-themes-mode-line '(accented borderless (padding . 4) (height . 0.9))
+
+        ;; Same as above:
+        ;; modus-themes-mode-line '(accented borderless 4 0.9)
+
+        ;; Options for `modus-themes-markup' are either nil, or a list
+        ;; that can combine any of `bold', `italic', `background',
+        ;; `intense'.
+        modus-themes-markup '(background italic)
+
+        ;; Options for `modus-themes-syntax' are either nil (the default),
+        ;; or a list of properties that may include any of those symbols:
+        ;; `faint', `yellow-comments', `green-strings', `alt-syntax'
+        modus-themes-syntax nil
+
+        ;; Options for `modus-themes-hl-line' are either nil (the default),
+        ;; or a list of properties that may include any of those symbols:
+        ;; `accented', `underline', `intense'
+        modus-themes-hl-line '(underline accented)
+
+        ;; Options for `modus-themes-paren-match' are either nil (the
+        ;; default), or a list of properties that may include any of those
+        ;; symbols: `bold', `intense', `underline'
+        modus-themes-paren-match '(bold intense)
+
+        ;; Options for `modus-themes-links' are either nil (the default),
+        ;; or a list of properties that may include any of those symbols:
+        ;; `neutral-underline' OR `no-underline', `faint' OR `no-color',
+        ;; `bold', `italic', `background'
+        modus-themes-links '(neutral-underline background)
+
+        ;; Options for `modus-themes-box-buttons' are either nil (the
+        ;; default), or a list that can combine any of `flat', `accented',
+        ;; `faint', `variable-pitch', `underline', `all-buttons', the
+        ;; symbol of any font weight as listed in `modus-themes-weights',
+        ;; and a floating point number (e.g. 0.9) for the height of the
+        ;; button's text.
+        modus-themes-box-buttons '(variable-pitch flat faint 0.9)
+
+        ;; Options for `modus-themes-prompts' are either nil (the
+        ;; default), or a list of properties that may include any of those
+        ;; symbols: `background', `bold', `gray', `intense', `italic'
+        modus-themes-prompts '(intense bold)
+
+        ;; The `modus-themes-completions' is an alist that reads three
+        ;; keys: `matches', `selection', `popup'.  Each accepts a nil
+        ;; value (or empty list) or a list of properties that can include
+        ;; any of the following (for WEIGHT read further below):
+        ;;
+        ;; `matches' - `background', `intense', `underline', `italic', WEIGHT
+        ;; `selection' - `accented', `intense', `underline', `italic', `text-also' WEIGHT
+        ;; `popup' - same as `selected'
+        ;; `t' - applies to any key not explicitly referenced (check docs)
+        ;;
+        ;; WEIGHT is a symbol such as `semibold', `light', or anything
+        ;; covered in `modus-themes-weights'.  Bold is used in the absence
+        ;; of an explicit WEIGHT.
+        modus-themes-completions '((matches . (extrabold))
+                                   (selection . (semibold accented))
+                                   (popup . (accented intense)))
+
+        modus-themes-mail-citations nil ; {nil,'intense,'faint,'monochrome}
+
+        ;; Options for `modus-themes-region' are either nil (the default),
+        ;; or a list of properties that may include any of those symbols:
+        ;; `no-extend', `bg-only', `accented'
+        modus-themes-region '(bg-only no-extend)
+
+        ;; Options for `modus-themes-diffs': nil, 'desaturated, 'bg-only
+        modus-themes-diffs 'desaturated
+
+        modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
+
+        modus-themes-org-agenda ; this is an alist: read the manual or its doc string
+        '((header-block . (variable-pitch 1.3))
+          (header-date . (grayscale workaholic bold-today 1.1))
+          (event . (accented varied))
+          (scheduled . uniform)
+          (habit . traffic-light))
+
+        modus-themes-headings ; this is an alist: read the manual or its doc string
+        '((1 . (overline background variable-pitch 1.3))
+          (2 . (rainbow overline 1.1))
+          (t . (semibold))))
+#+end_src
+
+** util functions
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+(defun xah-toggle-letter-case ()
+  "Toggle the letter case of current word or selection.
+Always cycle in this order: Init Caps, ALL CAPS, all lower.
+
+URL `http://xahlee.info/emacs/emacs/modernization_upcase-word.html'
+Version: 2020-06-26"
+  (interactive)
+  (let ( (deactivate-mark nil) $p1 $p2)
+    (if (region-active-p)
+        (setq $p1 (region-beginning) $p2 (region-end))
+      (save-excursion
+        (skip-chars-backward "[:alpha:]")
+        (setq $p1 (point))
+        (skip-chars-forward "[:alpha:]")
+        (setq $p2 (point))))
+    (when (not (eq last-command this-command))
+      (put this-command 'state 0))
+    (cond
+     ((equal 0 (get this-command 'state))
+      (upcase-initials-region $p1 $p2)
+      (put this-command 'state 1))
+     ((equal 1 (get this-command 'state))
+      (upcase-region $p1 $p2)
+      (put this-command 'state 2))
+     ((equal 2 (get this-command 'state))
+      (downcase-region $p1 $p2)
+      (put this-command 'state 0)))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (defun open-settings ()
+	(interactive)
+	(find-file-other-window "~/emacs/init.org"))
+#+end_src
+
+** bindings
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (global-set-key (kbd "M-/") #'hippie-expand)
+  (global-set-key (kbd "M-c") #'xah-toggle-letter-case) ; frees M-l and M-u 
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+  (global-set-key (kbd "C-M-,") 'open-settings)
+  (global-set-key (kbd "M-'") #'avy-goto-char-2)
+  (global-set-key (kbd "M-l") 'er/expand-region)
+#+end_src
+
+** provide
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (provide 'extra-ui)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'extra-ui)
+#+end_src
+
+
+
+* Org Mode
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
+  (with-eval-after-load 'org
+#+end_src
+
+** Settings
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
+  (setq org-src-tab-acts-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+	 (python . t)
+	 (R . t)))
+#+end_src
+
+** org-bullets
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
+  (require 'org-bullets)
+  (setq org-bullets-bullet-list '("◉" "○"))
+  (add-hook 'org-mode-hook #'org-bullets-mode)
+#+end_src
+
+** org-tempo
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
+  (require 'org-tempo)
+#+end_src
+
+** keys
+#+begin_src emacs-lisp
+  (add-hook 'org-mode #'(local-unset-key (kbd "C-'")))
+#+end_src
+
+** provide
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
+  )
+  (provide 'org-setup)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'org-setup)
+#+end_src
+
+
+* C/C++ Mode
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cedit.el
+  (defun mlk-c-edit ()
+      "m.l. kroon's C/C++ setup for emacs"
+      (progn
+        (c-set-style "stroustrup")
+        ;;(setq c-basic-offset 4)
+        (indent-tabs-mode -1)
+        (local-set-key (kbd "C-c C-c") 'compile)
+        (unless (or (file-exists-p "Makefile")
+                    (file-exists-p "icmconf"))
+          (setq-local compile-command
+                      (concat (if (string-equal (file-name-extension buffer-file-name) (or "cc" "cpp"))
+                                 "g++ -std=c++20 " "gcc -std=c18 ")
+                      "-O2 -Wall -march=native -pipe -pthread "
+                      (file-name-nondirectory buffer-file-name)
+                      " -o " (file-name-base buffer-file-name))))))
+
+    (add-hook 'c-mode-common-hook #'mlk-c-edit)
+
+    (add-to-list 'auto-mode-alist '("\\.ih\\'" . c++-mode))
+    (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
+    (provide 'cedit)
+#+end_src
+
+#+begin_src :tangle ~/.emacs.d/init.el
+  (require 'cedit)
+#+end_src
+
+
+* Common Lisp
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cl-setup.el
+  (defun cl-setup ()
+    "require common lisp stuff"
+    (interactive)
+  (setq inferior-lisp-program "sbcl")
+  (require 'slime)
+  (slime-setup))
+
+  (provide 'cl-setup)
+#+end_src
+
+#+begin_src emacs-lisp
+  (require cl-setup)
+#+end_src
+
+
+* Julia
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/julia-setup.el
+  (defun julia-setup ()
+    "load julia"
+    (interactive)
+  (progn
+    (require 'julia-vterm)
+    (require 'julia-mode)
+    (add-hook 'julia-mode-hook #'julia-vterm-mode)))
+
+  (provide 'julia-setup)
+#+end_src
+
+#+begin_src emacs-lisp :tanlge ~/.emacs.d/init.el
+  (require 'julia-setup)
+#+end_src
+
+
+* R
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/R-setup.el
+  (defun R-setup ()
+    "load ess-r"
+    (interactive)
+  (progn
+    (require 'ess-r-mode)))
+
+  (provide 'R-setup)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'R-setup)
+#+end_src
+
+
+* Python
+** Settings
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+  (with-eval-after-load 'python
+    (setq python-indent-offset 4)
+    (setq python-indent-guess-indent-offset nil)
+#+end_src
+** Bindings
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+  (define-key python-mode-map (kbd "C-<return>") 'python-shell-send-statement)
+  (define-key inferior-python-mode-map (kbd "C-c C-z") 'previous-window-any-frame);wip
+#+end_src
+** provide
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+  )
+  (provide 'python-setup)
+#+end_src
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+  (require 'python-setup)
+#+end_src
