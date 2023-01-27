@@ -1,12 +1,11 @@
-#+title: Emacs Init
-#+author: Machiel Kroon
-#+startup: show2levels
+#+TITLE: Emacs Init
+#+AUTHOR: Machiel Kroon
+#+STARTUP: show2levels
+#+PROPERTY: header-args :results silent
 
-setup for emacs. WIP
+setup for emacs
 
-swith for terminal setup...
-
-* initialize
+* Initialize
 #+begin_src emacs-lisp :results none
   (mkdir "~/.emacs.d/lisp")
   (mkdir "~/.emacs.d/backups")
@@ -17,16 +16,17 @@ swith for terminal setup...
   (package-install 'avy)
   (package-install 'expand-region)
   (package-install 'org-bullets)
-  (package-install 'solarized)
+  ;; (package-install 'solarized)
   ;; (package-install 'vterm
   ;; (package-install 'julia-mode)
   ;; (package-install 'julia-vterm)
   ;; (package-install 'ess)
 #+end_src
 
+
 * Basics
 ** Early Init
-loading everything seems dumb, but this doesn't work either
+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
 ;;  (setq package-enable-at-startup nil)
 #+end_src
@@ -96,179 +96,43 @@ As long as it is this small, its faster in init.el
 
 
 * Native UI
-** Ugly Modes
+** Modes I
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
   (setq inhibit-startup-screen t)
   (setq-default indent-tabs-mode nil)
-#+end_src
-
-** Pretty Modes
-
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (fido-vertical-mode 1)                  ; problem with emacs-27
+  (column-number-mode 1)
+  (setf yes-or-no-p 'y-or-n-p)
   (column-number-mode 1)
   (save-place-mode 1)
-  (setq visible-bell t)
+#+end_src
+
+** Modes II
+less-compatible modes
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
+  (tool-bar-mode 1)
+  (scroll-bar-mode -1)
+  (fido-vertical-mode 1)                  ; 28+
   (setq apropos-do-all t)
-  (setf yes-or-no-p 'y-or-n-p)
-  (setq fringe-mode '(4 . 8))
+  (fringe-mode '(4 . 0))
 #+end_src
 
 ** Fonts
 
-This is hard to do implement
+One font is hard to implement across OS's
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (set-face-attribute 'default nil :family "Terminus (TTF)" :height 150)
+  (set-face-attribute 'default nil :height 130)
   (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
-  (set-face-attribute 'variable-pitch nil :family (face-attribute 'default :family))
+;;(set-face-attribute 'variable-pitch nil :family (face-attribute 'default :family))
 #+end_src
 
-** Startup screen? (OFF)
+** Startup screen
 
 Possibly make personal startup screen
 #+begin_src emacs-lisp :results true
   (print fancy-startup-text)
   ;;  (fancy-startup-screen)
-#+end_src
-
-** Modus Themes (OFF)
-
-see the manual : https://protesilaos.com/emacs/modus-themes
-
-emacs 28+
-
-#+begin_src emacs-lisp
-  (setq modus-themes-org-blocks 'gray-background)
-  (load-theme 'modus-operandi)
-  (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
-#+end_src
-
-*** Example (OFF)
-
-#+begin_src emacs-lisp
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs nil
-        modus-themes-mixed-fonts nil
-        modus-themes-subtle-line-numbers nil
-        modus-themes-intense-mouseovers nil
-        modus-themes-deuteranopia t
-        modus-themes-tabs-accented t
-        modus-themes-variable-pitch-ui nil
-        modus-themes-inhibit-reload t ; only applies to `customize-set-variable' and related
-
-        modus-themes-fringes nil ; {nil,'subtle,'intense}
-
-        ;; Options for `modus-themes-lang-checkers' are either nil (the
-        ;; default), or a list of properties that may include any of those
-        ;; symbols: `straight-underline', `text-also', `background',
-        ;; `intense' OR `faint'.
-        modus-themes-lang-checkers nil
-
-        ;; Options for `modus-themes-mode-line' are either nil, or a list
-        ;; that can combine any of `3d' OR `moody', `borderless',
-        ;; `accented', a natural number for extra padding (or a cons cell
-        ;; of padding and NATNUM), and a floating point for the height of
-        ;; the text relative to the base font size (or a cons cell of
-        ;; height and FLOAT)
-        modus-themes-mode-line '(accented borderless (padding . 4) (height . 0.9))
-
-        ;; Same as above:
-        ;; modus-themes-mode-line '(accented borderless 4 0.9)
-
-        ;; Options for `modus-themes-markup' are either nil, or a list
-        ;; that can combine any of `bold', `italic', `background',
-        ;; `intense'.
-        modus-themes-markup '(background italic)
-
-        ;; Options for `modus-themes-syntax' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `faint', `yellow-comments', `green-strings', `alt-syntax'
-        modus-themes-syntax nil
-
-        ;; Options for `modus-themes-hl-line' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `accented', `underline', `intense'
-        modus-themes-hl-line '(underline accented)
-
-        ;; Options for `modus-themes-paren-match' are either nil (the
-        ;; default), or a list of properties that may include any of those
-        ;; symbols: `bold', `intense', `underline'
-        modus-themes-paren-match '(bold intense)
-
-        ;; Options for `modus-themes-links' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `neutral-underline' OR `no-underline', `faint' OR `no-color',
-        ;; `bold', `italic', `background'
-        modus-themes-links '(neutral-underline background)
-
-        ;; Options for `modus-themes-box-buttons' are either nil (the
-        ;; default), or a list that can combine any of `flat', `accented',
-        ;; `faint', `variable-pitch', `underline', `all-buttons', the
-        ;; symbol of any font weight as listed in `modus-themes-weights',
-        ;; and a floating point number (e.g. 0.9) for the height of the
-        ;; button's text.
-        modus-themes-box-buttons '(variable-pitch flat faint 0.9)
-
-        ;; Options for `modus-themes-prompts' are either nil (the
-        ;; default), or a list of properties that may include any of those
-        ;; symbols: `background', `bold', `gray', `intense', `italic'
-        modus-themes-prompts '(intense bold)
-
-        ;; The `modus-themes-completions' is an alist that reads three
-        ;; keys: `matches', `selection', `popup'.  Each accepts a nil
-        ;; value (or empty list) or a list of properties that can include
-        ;; any of the following (for WEIGHT read further below):
-        ;;
-        ;; `matches' - `background', `intense', `underline', `italic', WEIGHT
-        ;; `selection' - `accented', `intense', `underline', `italic', `text-also' WEIGHT
-        ;; `popup' - same as `selected'
-        ;; `t' - applies to any key not explicitly referenced (check docs)
-        ;;
-        ;; WEIGHT is a symbol such as `semibold', `light', or anything
-        ;; covered in `modus-themes-weights'.  Bold is used in the absence
-        ;; of an explicit WEIGHT.
-        modus-themes-completions '((matches . (extrabold))
-                                   (selection . (semibold accented))
-                                   (popup . (accented intense)))
-
-        modus-themes-mail-citations nil ; {nil,'intense,'faint,'monochrome}
-
-        ;; Options for `modus-themes-region' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `no-extend', `bg-only', `accented'
-        modus-themes-region '(bg-only no-extend)
-
-        ;; Options for `modus-themes-diffs': nil, 'desaturated, 'bg-only
-        modus-themes-diffs 'desaturated
-
-        modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
-
-        modus-themes-org-agenda ; this is an alist: read the manual or its doc string
-        '((header-block . (variable-pitch 1.3))
-          (header-date . (grayscale workaholic bold-today 1.1))
-          (event . (accented varied))
-          (scheduled . uniform)
-          (habit . traffic-light))
-
-        modus-themes-headings ; this is an alist: read the manual or its doc string
-        '((1 . (overline background variable-pitch 1.3))
-          (2 . (rainbow overline 1.1))
-          (t . (semibold))))
-#+end_src
-
-** Hippie expand
-
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (global-set-key (kbd "M-/") #'hippie-expand)
-  (setq hippie-expand-try-functions-list '(try-complete-file-name
-                                           try-expand-line
-                                           try-expand-dabbrev
-                                           try-expand-dabbrev-all-buffers
-                                           try-expand-dabbrev-from-kill))
 #+end_src
 
 ** Backups
@@ -288,7 +152,19 @@ emacs 28+
 
 
 * Extra UI
-** avy
+
+** Hippie Expand
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
+  (global-set-key (kbd "M-/") #'hippie-expand)
+  (setq hippie-expand-try-functions-list '(try-complete-file-name
+                                           try-expand-line
+                                           try-expand-dabbrev
+                                           try-expand-dabbrev-all-buffers
+                                           try-expand-dabbrev-from-kill))
+#+end_src
+
+** Avy
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (require 'avy)
@@ -301,151 +177,15 @@ emacs 28+
   (setq avy-timeout-seconds 0.25)
 #+end_src
 
-** expand-region
+** Expand-Region
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (require 'expand-region)
 #+end_src
 
-** browser function
-
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
-;;  (setq browse-url-browser-function 'browse-url-firefox)
-#+end_src
-
-** Theme
-
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
-  (load-theme 'solarized-dark t t)
-#+end_src
-
-** Modus Themes (OFF)
-
-see the manual : https://protesilaos.com/emacs/modus-themes
-
-emacs 28+
+** Toggle-Letter-Case
 
 #+begin_src emacs-lisp
-  (setq modus-themes-org-blocks 'gray-background)
-  (load-theme 'modus-operandi)
-  (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
-#+end_src
-
-*** Example (OFF)
-
-#+begin_src emacs-lisp
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs nil
-        modus-themes-mixed-fonts nil
-        modus-themes-subtle-line-numbers nil
-        modus-themes-intense-mouseovers nil
-        modus-themes-deuteranopia t
-        modus-themes-tabs-accented t
-        modus-themes-variable-pitch-ui nil
-        modus-themes-inhibit-reload t ; only applies to `customize-set-variable' and related
-
-        modus-themes-fringes nil ; {nil,'subtle,'intense}
-
-        ;; Options for `modus-themes-lang-checkers' are either nil (the
-        ;; default), or a list of properties that may include any of those
-        ;; symbols: `straight-underline', `text-also', `background',
-        ;; `intense' OR `faint'.
-        modus-themes-lang-checkers nil
-
-        ;; Options for `modus-themes-mode-line' are either nil, or a list
-        ;; that can combine any of `3d' OR `moody', `borderless',
-        ;; `accented', a natural number for extra padding (or a cons cell
-        ;; of padding and NATNUM), and a floating point for the height of
-        ;; the text relative to the base font size (or a cons cell of
-        ;; height and FLOAT)
-        modus-themes-mode-line '(accented borderless (padding . 4) (height . 0.9))
-
-        ;; Same as above:
-        ;; modus-themes-mode-line '(accented borderless 4 0.9)
-
-        ;; Options for `modus-themes-markup' are either nil, or a list
-        ;; that can combine any of `bold', `italic', `background',
-        ;; `intense'.
-        modus-themes-markup '(background italic)
-
-        ;; Options for `modus-themes-syntax' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `faint', `yellow-comments', `green-strings', `alt-syntax'
-        modus-themes-syntax nil
-
-        ;; Options for `modus-themes-hl-line' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `accented', `underline', `intense'
-        modus-themes-hl-line '(underline accented)
-
-        ;; Options for `modus-themes-paren-match' are either nil (the
-        ;; default), or a list of properties that may include any of those
-        ;; symbols: `bold', `intense', `underline'
-        modus-themes-paren-match '(bold intense)
-
-        ;; Options for `modus-themes-links' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `neutral-underline' OR `no-underline', `faint' OR `no-color',
-        ;; `bold', `italic', `background'
-        modus-themes-links '(neutral-underline background)
-
-        ;; Options for `modus-themes-box-buttons' are either nil (the
-        ;; default), or a list that can combine any of `flat', `accented',
-        ;; `faint', `variable-pitch', `underline', `all-buttons', the
-        ;; symbol of any font weight as listed in `modus-themes-weights',
-        ;; and a floating point number (e.g. 0.9) for the height of the
-        ;; button's text.
-        modus-themes-box-buttons '(variable-pitch flat faint 0.9)
-
-        ;; Options for `modus-themes-prompts' are either nil (the
-        ;; default), or a list of properties that may include any of those
-        ;; symbols: `background', `bold', `gray', `intense', `italic'
-        modus-themes-prompts '(intense bold)
-
-        ;; The `modus-themes-completions' is an alist that reads three
-        ;; keys: `matches', `selection', `popup'.  Each accepts a nil
-        ;; value (or empty list) or a list of properties that can include
-        ;; any of the following (for WEIGHT read further below):
-        ;;
-        ;; `matches' - `background', `intense', `underline', `italic', WEIGHT
-        ;; `selection' - `accented', `intense', `underline', `italic', `text-also' WEIGHT
-        ;; `popup' - same as `selected'
-        ;; `t' - applies to any key not explicitly referenced (check docs)
-        ;;
-        ;; WEIGHT is a symbol such as `semibold', `light', or anything
-        ;; covered in `modus-themes-weights'.  Bold is used in the absence
-        ;; of an explicit WEIGHT.
-        modus-themes-completions '((matches . (extrabold))
-                                   (selection . (semibold accented))
-                                   (popup . (accented intense)))
-
-        modus-themes-mail-citations nil ; {nil,'intense,'faint,'monochrome}
-
-        ;; Options for `modus-themes-region' are either nil (the default),
-        ;; or a list of properties that may include any of those symbols:
-        ;; `no-extend', `bg-only', `accented'
-        modus-themes-region '(bg-only no-extend)
-
-        ;; Options for `modus-themes-diffs': nil, 'desaturated, 'bg-only
-        modus-themes-diffs 'desaturated
-
-        modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
-
-        modus-themes-org-agenda ; this is an alist: read the manual or its doc string
-        '((header-block . (variable-pitch 1.3))
-          (header-date . (grayscale workaholic bold-today 1.1))
-          (event . (accented varied))
-          (scheduled . uniform)
-          (habit . traffic-light))
-
-        modus-themes-headings ; this is an alist: read the manual or its doc string
-        '((1 . (overline background variable-pitch 1.3))
-          (2 . (rainbow overline 1.1))
-          (t . (semibold))))
-#+end_src
-
-** util functions
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
 (defun xah-toggle-letter-case ()
   "Toggle the letter case of current word or selection.
 Always cycle in this order: Init Caps, ALL CAPS, all lower.
@@ -475,22 +215,56 @@ Version: 2020-06-26"
       (put this-command 'state 0)))))
 #+end_src
 
+** Open-Settings
+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (defun open-settings ()
 	(interactive)
 	(find-file-other-window "~/emacs/init.org"))
 #+end_src
 
-** bindings
+** Theme
+*** Solarized
+#+begin_src emacs-lisp
+  (load-theme 'solarized-dark t t)
+#+end_src
+
+*** Modus Themes
+
+see the manual : https://protesilaos.com/emacs/modus-themes
+emacs 28+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
-  (global-set-key (kbd "M-c") #'xah-toggle-letter-case) ; frees M-l and M-u 
+  (setq modus-themes-org-blocks 'gray-background)
+  (load-theme 'modus-operandi)
+  (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
+#+end_src
+
+** Dired-X
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  (with-eval-after-load 'dired
+    (setq dired-x-hands-off-my-keys nil)
+    (require 'dired-x)
+    (setq dired-omit-files
+          (concat dired-omit-files "\\|^\\..+$\\|^ntuser.+$\\|^NTUSER.+$"))
+    )
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (dired-omit-mode 1)
+              ))
+#+end_src
+
+** Bindings
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+  ;;(global-set-key (kbd "M-c") #'xah-toggle-letter-case) ; frees M-l and M-u 
   (global-set-key (kbd "C-x C-b") 'ibuffer)
   (global-set-key (kbd "C-M-,") 'open-settings)
   (global-set-key (kbd "M-'") #'avy-goto-char-2)
-  (global-set-key (kbd "M-l") 'er/expand-region)
+  (global-set-key (kbd "M-+") 'er/expand-region)
 #+end_src
 
-** provide
+** Provide
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (provide 'extra-ui)
 #+end_src
@@ -502,7 +276,6 @@ Version: 2020-06-26"
 
 
 * Org Mode
-
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
   (with-eval-after-load 'org
 #+end_src
@@ -519,7 +292,7 @@ Version: 2020-06-26"
 	 (R . t)))
 #+end_src
 
-** org-bullets
+** Org-Bullets
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
   (require 'org-bullets)
@@ -527,19 +300,19 @@ Version: 2020-06-26"
   (add-hook 'org-mode-hook #'org-bullets-mode)
 #+end_src
 
-** org-tempo
+** Org-Tempo
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
   (require 'org-tempo)
 #+end_src
 
-** keys
+** Keys
 
 #+begin_src emacs-lisp
   (add-hook 'org-mode #'(local-unset-key (kbd "C-'")))
 #+end_src
 
-** provide
+** Provide
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/org-setup.el
   )
@@ -551,7 +324,9 @@ Version: 2020-06-26"
 #+end_src
 
 
-* C/C++ Mode
+* Programming Languages
+
+** C/C++ Mode
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cedit.el
   (defun mlk-c-edit ()
@@ -582,10 +357,10 @@ Version: 2020-06-26"
   (require 'cedit)
 #+end_src
 
-
-* Common Lisp
+** Common Lisp
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cl-setup.el
+;;;###autoload
   (defun cl-setup ()
     "require common lisp stuff"
     (interactive)
@@ -600,10 +375,10 @@ Version: 2020-06-26"
   (require cl-setup)
 #+end_src
 
-
-* Julia
+** Julia
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/julia-setup.el
+;;;###autoload
   (defun julia-setup ()
     "load julia"
     (interactive)
@@ -615,46 +390,44 @@ Version: 2020-06-26"
   (provide 'julia-setup)
 #+end_src
 
-#+begin_src emacs-lisp :tanlge ~/.emacs.d/init.el
+#+begin_src emacs-lisp
   (require 'julia-setup)
 #+end_src
 
-
-* R
+** R
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/R-setup.el
+;;;###autoload
   (defun R-setup ()
     "load ess-r"
     (interactive)
-  (progn
-    (require 'ess-r-mode)))
+    (require 'ess-r-mode))
 
   (provide 'R-setup)
 #+end_src
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
+#+begin_src emacs-lisp
   (require 'R-setup)
 #+end_src
 
+** Python
 
-* Python
-
-** Settings
+*** Settings
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
   (with-eval-after-load 'python
-    (setq python-indent-offset 4)
+    (setq python-indent-offset 4)         ;?
     (setq python-indent-guess-indent-offset nil)
 #+end_src
 
-** Bindings
+*** Bindings
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
   (define-key python-mode-map (kbd "C-<return>") 'python-shell-send-statement)
   (define-key inferior-python-mode-map (kbd "C-c C-z") 'previous-window-any-frame);wip
 #+end_src
 
-** provide
+*** provide
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
   )
