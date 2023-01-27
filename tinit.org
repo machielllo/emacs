@@ -502,9 +502,11 @@ Version: 2020-06-26"
     (setq python-indent-offset 4)
     (setq python-indent-guess-indent-offset nil)
 #+end_src
+
 ** Bindings
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
   (define-key python-mode-map (kbd "C-<return>") 'python-shell-send-statement)
+  (define-key python-mode-map (kbd "C-j") 'python-shell-send-statement)
   (define-key inferior-python-mode-map (kbd "C-c C-z") 'previous-window-any-frame);wip
 #+end_src
 ** provide
