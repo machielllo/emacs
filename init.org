@@ -6,6 +6,7 @@
 setup for emacs
 
 * Initialize
+
 #+begin_src emacs-lisp :results none
   (mkdir "~/.emacs.d/lisp")
   (mkdir "~/.emacs.d/backups")
@@ -14,8 +15,8 @@ setup for emacs
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
   (package-refresh-contents)
   (package-install 'avy)
-  (package-install 'expand-region)
   (package-install 'org-bullets)
+  ;; (package-install 'expand-region)
   ;; (package-install 'solarized)
   ;; (package-install 'vterm
   ;; (package-install 'julia-mode)
@@ -110,7 +111,7 @@ As long as it is this small, its faster in init.el
 ** Modes II
 less-compatible modes
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (tool-bar-mode 1)
+  (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (fido-vertical-mode 1)                  ; 28+
   (setq apropos-do-all t)
@@ -122,7 +123,7 @@ less-compatible modes
 One font is hard to implement across OS's
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (set-face-attribute 'default nil :height 130)
+  (set-face-attribute 'default nil :height 160)
   (set-face-attribute 'fixed-pitch nil :family (face-attribute 'default :family))
 ;;(set-face-attribute 'variable-pitch nil :family (face-attribute 'default :family))
 #+end_src
@@ -155,8 +156,7 @@ Possibly make personal startup screen
 
 ** Hippie Expand
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/ui-stuff.el
-  (global-set-key (kbd "M-/") #'hippie-expand)
+#+begin_src emacs-lisp
   (setq hippie-expand-try-functions-list '(try-complete-file-name
                                            try-expand-line
                                            try-expand-dabbrev
@@ -179,8 +179,9 @@ Possibly make personal startup screen
 
 ** Expand-Region
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
+#+begin_src emacs-lisp
   (require 'expand-region)
+  ;;  (global-set-key (kbd "M-+") 'er/expand-region)
 #+end_src
 
 ** Toggle-Letter-Case
@@ -235,7 +236,7 @@ see the manual : https://protesilaos.com/emacs/modus-themes
 emacs 28+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (setq modus-themes-org-blocks 'gray-background)
-  (load-theme 'modus-operandi)
+  (load-theme 'modus-vivendi)
   (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
 #+end_src
 
@@ -258,13 +259,14 @@ emacs 28+
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   ;;(global-set-key (kbd "M-c") #'xah-toggle-letter-case) ; frees M-l and M-u 
+  (global-set-key (kbd "M-/") #'hippie-expand)
   (global-set-key (kbd "C-x C-b") 'ibuffer)
   (global-set-key (kbd "C-M-,") 'open-settings)
   (global-set-key (kbd "M-'") #'avy-goto-char-2)
-  (global-set-key (kbd "M-+") 'er/expand-region)
 #+end_src
 
 ** Provide
+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/extra-ui.el
   (provide 'extra-ui)
 #+end_src
@@ -272,7 +274,6 @@ emacs 28+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
   (require 'extra-ui)
 #+end_src
-
 
 
 * Org Mode
@@ -328,7 +329,7 @@ emacs 28+
 
 ** C/C++ Mode
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cedit.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/mlkprog.el
   (defun mlk-c-edit ()
       "m.l. kroon's C/C++ setup for emacs"
       (progn
@@ -349,36 +350,22 @@ emacs 28+
 
     (add-to-list 'auto-mode-alist '("\\.ih\\'" . c++-mode))
     (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-
-    (provide 'cedit)
-#+end_src
-
-#+begin_src :tangle ~/.emacs.d/init.el
-  (require 'cedit)
 #+end_src
 
 ** Common Lisp
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/cl-setup.el
-;;;###autoload
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/mlkprog.el
   (defun cl-setup ()
     "require common lisp stuff"
     (interactive)
   (setq inferior-lisp-program "sbcl")
   (require 'slime)
   (slime-setup))
-
-  (provide 'cl-setup)
-#+end_src
-
-#+begin_src emacs-lisp
-  (require cl-setup)
 #+end_src
 
 ** Julia
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/julia-setup.el
-;;;###autoload
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/mlkprog.el
   (defun julia-setup ()
     "load julia"
     (interactive)
@@ -386,35 +373,18 @@ emacs 28+
     (require 'julia-vterm)
     (require 'julia-mode)
     (add-hook 'julia-mode-hook #'julia-vterm-mode)))
-
-  (provide 'julia-setup)
-#+end_src
-
-#+begin_src emacs-lisp
-  (require 'julia-setup)
 #+end_src
 
 ** R
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/R-setup.el
-;;;###autoload
-  (defun R-setup ()
-    "load ess-r"
-    (interactive)
-    (require 'ess-r-mode))
-
-  (provide 'R-setup)
-#+end_src
-
-#+begin_src emacs-lisp
-  (require 'R-setup)
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/mlkprog.el
+  (require 'ess-r-mode)
 #+end_src
 
 ** Python
-
 *** Settings
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/mlkprog.el
   (with-eval-after-load 'python
     (setq python-indent-offset 4)         ;?
     (setq python-indent-guess-indent-offset nil)
@@ -422,18 +392,18 @@ emacs 28+
 
 *** Bindings
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/mlkprog.el
   (define-key python-mode-map (kbd "C-<return>") 'python-shell-send-statement)
   (define-key inferior-python-mode-map (kbd "C-c C-z") 'previous-window-any-frame);wip
+  )
 #+end_src
 
-*** provide
+** provide
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/python-setup.el
-  )
-  (provide 'python-setup)
+#+begin_src emacs-lisp :tangle ~/.emacs.d/lisp/mlkprog.el
+  (provide mlkprog)
 #+end_src
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el
-  (require 'python-setup)
+  (require 'mlkprog)
 #+end_src
